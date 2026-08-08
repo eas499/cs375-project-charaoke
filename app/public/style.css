@@ -1,3 +1,15 @@
-p {
-    color: pink
+.song_button {
+    border: 2px solid black;
+    border-radius: 4px;
+    padding: 30px 80px;
+    background-color: white;
+    display: inline-block;
+}
+
+.leaderboard {
+    border: 2px solid black;
+    border-radius: 4px;
+    padding: 5px 5px;
+    background-color: white;
+    display: inline-block;
 }
