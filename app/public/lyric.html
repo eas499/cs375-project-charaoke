@@ -3,11 +3,12 @@
 <head>
 <title>Lyric Mode</title>
 <link rel="stylesheet" href="style.css">
+<script src="lyric.js"></script>
 </head>
 <body>
 
 <img src="images/lyric_mode.png">
-<input type="text" id="song_search">
+<input type="text" onkeydown="updateResults(this)" id="song_search">
 <!--Add songs dynamically with search bar?-->
 
 <button type="button" id="main_menu">Back to Main Menu</button>
