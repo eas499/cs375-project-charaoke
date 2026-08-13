@@ -124,10 +124,34 @@
             let n = timestamps.length;
             
             // TODO: only displays lyric[i]
+            // for (let i = 0; i < n; i++) {
+	        //     setTimeout(() => {
+	        //     	waterfall.textContent = lyrList[i];
+	        //     }, timestamps[i] - timestamps[0]);
+            // }
+
+            // const displayLyric = (i) => {
+            //     if (i >= n) return;
+            //     waterfall.textContent = lyrList[i];
+            //     setTimeout(() => {
+            //         displayLyric(i + 1);
+            //     }, (timestamps[i + 1] - timestamps[i])*1000);
+            // }
+            // async function displayLyrics() {
+            //     displayLyric(0);
+            // }
+            // displayLyrics();
+
+            function displayLyric(i) {
+                if (i >= n) return;
+                waterfall.textContent = lyrList[i];
+                setTimeout(() => {
+                    displayLyric(i + 1);
+                }, (timestamps[i + 1] - timestamps[0]));
+            }
+
             for (let i = 0; i < n; i++) {
-	            setTimeout(() => {
-	            	waterfall.textContent = lyrList[i];
-	            }, timestamps[i] - timestamps[0]);
+                displayLyric(i);
             }
 
             function start() {
