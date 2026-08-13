@@ -23,7 +23,6 @@ fetch(env["spotify"]["token_url"], {
     return response.json();
 }).then(body => {
     spotify_token = body.access_token;
-    console.log(spotify_token);
 });
 
 function getLrcLibResults(url) {
@@ -49,9 +48,6 @@ app.get("/get_songs", async (req, res) => {
             getLrcLibResults(lrclib_url),
             getSpotifyResults(spotify_url)
         ]);
-
-        console.log("lrclib", lrclib_results);
-        console.log("spotify", spotify_results.tracks.items);
 
         songs = [];
         for (let lrc of lrclib_results) {
