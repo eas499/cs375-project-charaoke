@@ -1,3 +1,8 @@
+// import lyr file
+// split lyr file into array of strings (1 line per string)
+// split each string into 2 elem array on [ and ]
+// import "../../alphabetLore.lrc";
+
 let timeList = ["00:02.84", "00:05.57","00:08.17","00:10.88","00:13.43","00:15.93","00:18.78","00:21.46","00:24.52","00:27.37","00:29.92",
 "00:32.66","00:35.80","00:38.27","00:41.13","00:43.66","00:45.46","00:48.21","00:50.99","00:53.53","00:56.22","00:58.97","01:01.42", 
 "01:04.04","01:06.94","01:09.13","01:12.19","01:14.39","01:17.69","01:04.04","01:06.94","01:09.13","01:12.19","01:14.39","01:17.69",
@@ -18,8 +23,16 @@ let lyrList = [
 ]
 
 console.log("game.js loaded");
+let ps = 6;
+let waterfalls = [];
+for (i=0; i<ps; i++) {
+    waterfalls.push(document.getElementById("waterfall" + i));
+}
 
-let waterfall = document.getElementById("waterfall");
+for (i=0; i<ps; i++) {
+    waterfalls[i].textContent = lyrList[i];
+}
+
 
 let buffer = document.getElementById("buffer");
 let timerID;
@@ -29,28 +42,15 @@ let add = false;
 let timestamps = parseTimeList(timeList);
 let n = timestamps.length;
 
-// TODO: only displays lyric[i]
-// for (let i = 0; i < n; i++) {
-//     setTimeout(() => {
-//     	waterfall.textContent = lyrList[i];
-//     }, timestamps[i] - timestamps[0]);
-// }
-
-// const displayLyric = (i) => {
-//     if (i >= n) return;
-//     waterfall.textContent = lyrList[i];
-//     setTimeout(() => {
-//         displayLyric(i + 1);
-//     }, (timestamps[i + 1] - timestamps[i])*1000);
-// }
-// async function displayLyrics() {
-//     await displayLyric(0);
-// }
-// displayLyrics();
-
 function displayLyric(i) {
     if (i >= n) return;
-    waterfall.textContent = lyrList[i];
+    for (let j=ps-1; j>=0; j--) {
+        if (j==0) {
+            waterfalls[j].textContent = lyrList[i];
+        } else {
+            waterfalls[j].textContent = waterfalls[j-1].textContent;
+        }
+    }
     console.log(i, lyrList[i], (timestamps[i + 1] - timestamps[i])*1000);
     setTimeout(() => {
         displayLyric(i + 1);
@@ -58,7 +58,7 @@ function displayLyric(i) {
 }
 
 console.log(timestamps);
-displayLyric(0);
+displayLyric(ps);
 
 // for (var i = 0; i < n; i++) {
 //     displayLyric(i);
