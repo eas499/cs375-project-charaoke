@@ -1,7 +1,6 @@
 // import lyr file
 // split lyr file into array of strings (1 line per string)
 // split each string into 2 elem array on [ and ]
-// import "../../alphabetLore.lrc";
 
 let timeList = ["00:02.84", "00:05.57","00:08.17","00:10.88","00:13.43","00:15.93","00:18.78","00:21.46","00:24.52","00:27.37","00:29.92",
 "00:32.66","00:35.80","00:38.27","00:41.13","00:43.66","00:45.46","00:48.21","00:50.99","00:53.53","00:56.22","00:58.97","01:01.42", 
@@ -21,6 +20,8 @@ let lyrList = [
     "W, X, Y, and Z","We can stop him, you and me","THIS IS THE END","THIS IS THE END PT2","THIS IS THE END PT3","THIS IS THE END PT4",
     "THIS IS THE END PT5","THIS IS THE END PT6","THIS IS THE END PT7","THIS IS THE END PT8"
 ]
+
+// get lyric file from
 
 console.log("game.js loaded");
 let ps = 6;
@@ -100,4 +101,21 @@ function parseTimestamp(timestamp) {
 function parseTimeList(timeList) {
     // timeList is a string in the format "HH:MM:SS,HH:MM:SS,HH:MM:SS"
     return timeList.map(parseTimestamp);
+}
+
+function parseLyricFile(lrc) {
+    let linesArr = lrc.split('\n');
+    let timestamps = [];
+    let lyrics = [];
+    let parsedObj = {};
+    for (line in linesArr) {
+        let lineSplit = linesArr[line].split("]");
+        let timestamp = lineSplit[0].split("[");
+        timestamps.push(timestamp[1]);
+        lyrics.push(lineSplit[1]);
+    }
+
+    parsedObj["lyrics"] = lyrics;
+    parsedObj["timestamps"] = timestamps;
+    return parsedObj;
 }
