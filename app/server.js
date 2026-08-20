@@ -62,7 +62,7 @@ app.get("/get_songs", async (req, res) => {
                         spotify_name: song.name,
                         duration: lrc.duration,
                         lyrics: lrc.syncedLyrics,
-                        href: song.href
+                        uri: song.uri
                     });
                 }
             }
@@ -78,23 +78,15 @@ app.get("/get_songs", async (req, res) => {
     }
 });
 
-app.get("/get_player", (req, res) => {
-    const player = new Spotify.Player({
-        name: 'Web Playback SDK Quick Start Player',
-        getOAuthToken: cb => { cb( spotify_token ); },
-        volume: 0.5
-    });
-    res.json({ player: player });
-});
-
 let currentSong = null;
 app.post("/select_song", (req, res) => {
     currentSong = req.body.song;
     res.status(200).send();
 });
-app.get("/current_song", (req, res) => {
-    res.json(currentSong);
+app.get("/get_token_and_song", (req, res) => {
+    res.json({ song: currentSong, token: spotify_token });
 });
+
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);
