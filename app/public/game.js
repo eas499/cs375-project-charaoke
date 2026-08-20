@@ -22,8 +22,6 @@ let lyrList = [
 console.log("game.js loaded");
 let ps = 6;
 let waterfalls = [];
-let timeList = [];
-let lyrList = [];
 
 for (i=0; i<ps; i++) {
     waterfalls.push(document.getElementById("waterfall" + i));
@@ -39,6 +37,7 @@ let timerID;
 // let add = false;
 
 fetch("/current_song").then(r => r.json()).then(song => {
+    console.log(song);
     if (song["mode"] == "lyric") {
         fetch(`/play_song?href=${song["href"]}`).then((response) => {
             console.log(href);
@@ -50,6 +49,8 @@ fetch("/current_song").then(r => r.json()).then(song => {
     } else {
         //play audio from audio file
     }
+}).catch((error) => {
+    console.log(error);
 });
 
 function playSong(player) {
@@ -92,7 +93,7 @@ function parseTimestamp(timestamp) {
     parts = parts[1].split(".");
     let seconds = parseInt(parts[0]);
     let milliseconds = parseInt(parts[1]);
-    console.log(minutes, seconds, milliseconds);
+    //console.log(minutes, seconds, milliseconds);
     return (minutes * 60 + seconds) * 1000 + milliseconds;
 }
 

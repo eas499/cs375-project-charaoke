@@ -1,5 +1,3 @@
-let songs = []
-
 function displayTopSongs() {
     //TODO: implement
     //get top songs from SQL database
@@ -7,17 +5,18 @@ function displayTopSongs() {
 
 function playSong(song) {
     song["mode"] = "lyric";
+    console.log(song);
     fetch("/select_song", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ song })
+        body: JSON.stringify({ song: song })
     }).then(() => {
         window.location.href = "/game.html";
     });
 }
 
-function createSongEntry(i) {
-    const song = songs[i];
+function createSongEntry(song) {
+    console.log(song);
     let song_div = document.createElement("div");
     song_div.class = "song";
     let button1 = document.createElement("button");
@@ -32,6 +31,7 @@ function createSongEntry(i) {
 
 function updateResults(el) {
     const search_input = el.value;
+    let songs = []
     if (search_input == "") {
         displayTopSongs();
     } else {
@@ -46,8 +46,8 @@ function updateResults(el) {
             const song_list = document.getElementById("song_results");
             song_list.textContent = "";
             for (let i = 0; i < songs.length; i++) {
-                console.log(i);
-                song_list.append(createSongEntry(i));
+                console.log(songs[i]);
+                song_list.append(createSongEntry(songs[i]));
             }
         });
     }

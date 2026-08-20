@@ -10,6 +10,7 @@ let app = express();
 var spotify_token;
 
 app.use(express.static("public"));
+app.use(express.json());
 
 fetch(env["spotify"]["token_url"], {
     method: 'POST',
@@ -120,9 +121,10 @@ app.get("/play_song", (req, res) => {
 let currentSong = null;
 app.post("/select_song", (req, res) => {
     currentSong = req.body.song;
+    console.log(currentSong);
     res.status(200).send();
 });
-app.get("current_song", (req, res) => {
+app.get("/current_song", (req, res) => {
     res.json(currentSong);
 });
 
