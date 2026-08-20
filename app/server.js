@@ -78,50 +78,18 @@ app.get("/get_songs", async (req, res) => {
     }
 });
 
-app.get("/play_song", (req, res) => {
-    const href = req.query["href"];
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-        const player = new Spotify.Player({
-            name: 'Web Playback SDK Quick Start Player',
-            getOAuthToken: cb => { cb( spotify_token ); },
-            volume: 0.5
-        });
-
-        player.addListener("ready", ({ device_id }) => {
-            const play = ({
-                context_uri,
-                playerInstance: {
-                    _options: { getOAuthToken, id },
-                },
-            }) => {
-                getOAuthToken((access_token) => {
-                    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, {
-                        method: "PUT",
-                        body: JSON.stringify({ uris: [context_uri] }),
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${access_token}`,
-                        },
-                    });
-                });
-            };
-
-            play({
-                playerInstance: player,
-                context_uri: `spotify:track:${href}`,
-                position_ms: 0,
-            });
-        });
-
-        res.json({ player: player });
-    }
+app.get("/get_player", (req, res) => {
+    const player = new Spotify.Player({
+        name: 'Web Playback SDK Quick Start Player',
+        getOAuthToken: cb => { cb( spotify_token ); },
+        volume: 0.5
+    });
+    res.json({ player: player });
 });
 
 let currentSong = null;
 app.post("/select_song", (req, res) => {
     currentSong = req.body.song;
-    console.log(currentSong);
     res.status(200).send();
 });
 app.get("/current_song", (req, res) => {

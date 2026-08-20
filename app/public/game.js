@@ -38,16 +38,41 @@ let timerID;
 
 fetch("/current_song").then(r => r.json()).then(song => {
     console.log(song);
-    if (song["mode"] == "lyric") {
-        fetch(`/play_song?href=${song["href"]}`).then((response) => {
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        fetch("/get_player").then((response) => {
             console.log(href);
             return response.json();
         }).then((body) => {
             let player = body.player;
+
+            player.addListener("ready", ({ device_id }) => {
+                const play = ({
+                    context_uri,
+                    playerInstance: {
+                        _options: { getOAuthToken, id },
+                    },
+                }) => {
+                    getOAuthToken((access_token) => {
+                        fetch(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, {
+                            method: "PUT",
+                            body: JSON.stringify({ uris: [context_uri] }),
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${access_token}`,
+                            },
+                        });
+                    });
+                };
+
+                play({
+                    playerInstance: player,
+                    context_uri: `spotify:track:${href}`,
+                    position_ms: 0,
+                });
+            });
+
             playSong(player);
         });
-    } else {
-        //play audio from audio file
     }
 }).catch((error) => {
     console.log(error);
