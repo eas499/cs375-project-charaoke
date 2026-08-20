@@ -1,7 +1,3 @@
-// import lyr file
-// split lyr file into array of strings (1 line per string)
-// split each string into 2 elem array on [ and ]
-
 let timeList = ["00:02.84", "00:05.57","00:08.17","00:10.88","00:13.43","00:15.93","00:18.78","00:21.46","00:24.52","00:27.37","00:29.92",
 "00:32.66","00:35.80","00:38.27","00:41.13","00:43.66","00:45.46","00:48.21","00:50.99","00:53.53","00:56.22","00:58.97","01:01.42", 
 "01:04.04","01:06.94","01:09.13","01:12.19","01:14.39","01:17.69","01:04.04","01:06.94","01:09.13","01:12.19","01:14.39","01:17.69",
@@ -21,7 +17,7 @@ let lyrList = [
     "THIS IS THE END PT5","THIS IS THE END PT6","THIS IS THE END PT7","THIS IS THE END PT8"
 ]
 
-// get lyric file from
+// TODO: get lyric file from ??somewhere??
 
 console.log("game.js loaded");
 let ps = 6;
@@ -34,16 +30,16 @@ for (i=0; i<ps; i++) {
     waterfalls[i].textContent = lyrList[i];
 }
 
-
 let buffer = document.getElementById("buffer");
 let timerID;
-let extraTime = 0;
-let add = false;
+// let extraTime = 0;
+// let add = false;
 
 let timestamps = parseTimeList(timeList);
 let n = timestamps.length;
 
 function displayLyric(i) {
+    // does nothing about the 16ms resolution for settimeout
     if (i >= n) return;
     for (let j=ps-1; j>=0; j--) {
         if (j==0) {
@@ -52,35 +48,14 @@ function displayLyric(i) {
             waterfalls[j].textContent = waterfalls[j-1].textContent;
         }
     }
-    console.log(i, lyrList[i], (timestamps[i + 1] - timestamps[i])*1000);
-    setTimeout(() => {
+    // console.log(i, lyrList[i], (timestamps[i + 1] - timestamps[i])*1000);
+    timerID = setTimeout(() => {
         displayLyric(i + 1);
     }, timestamps[i + 1] - timestamps[i]);
 }
 
-console.log(timestamps);
+// console.log(timestamps);
 displayLyric(ps);
-
-// for (var i = 0; i < n; i++) {
-//     displayLyric(i);
-// }
-
-function start() {
-    /* not in use anymore, the above loop cycles through the lyrics automatically*/
-    // add song actually playing also
-    // this will need to maybe be recursive somehow
-    let lastTime = 0;
-    for (let i = 0; i < lyrList.length; i++) {
-        let currTime = parseTimestamp(timeList[i]);
-        let delay = currTime - lastTime;
-        extraTime = delay % 16;
-        add = !add;
-        timerID = setTimeout(() => {
-            waterfall.innerHTML = lyrList[i];
-        }, add ? delay + extraTime : delay - extraTime);
-    }
-    
-}
 
 function stop() {
     clearTimeout(timerID);
@@ -97,13 +72,14 @@ function parseTimestamp(timestamp) {
     return (minutes * 60 + seconds) * 1000 + milliseconds;
 }
 
-
 function parseTimeList(timeList) {
     // timeList is a string in the format "HH:MM:SS,HH:MM:SS,HH:MM:SS"
     return timeList.map(parseTimestamp);
 }
 
 function parseLyricFile(lrc) {
+    // assumes lrc file is coming in as a string
+    // TODO: what happens when a lyric has quotes in it?
     let linesArr = lrc.split('\n');
     let timestamps = [];
     let lyrics = [];
@@ -116,6 +92,6 @@ function parseLyricFile(lrc) {
     }
 
     parsedObj["lyrics"] = lyrics;
-    parsedObj["timestamps"] = timestamps;
+    parsedObj["timestamps"] = parseTimeList(timestamps);
     return parsedObj;
 }
