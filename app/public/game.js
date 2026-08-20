@@ -6,10 +6,6 @@ for (i=0; i<ps; i++) {
     waterfalls.push(document.getElementById("waterfall" + i));
 }
 
-for (i=0; i<ps; i++) {
-    //waterfalls[i].textContent = lyrList[i];
-}
-
 let buffer = document.getElementById("buffer");
 let timerID;
 // let extraTime = 0;
@@ -60,17 +56,21 @@ window.onSpotifyWebPlaybackSDKReady = () => {
 function playSong(player, song) {
     // the gameplay loop (lyric updating, audio playing, etc) goes here
     let lyrObj = parseLyricFile(song.lyrics);
+    let timestamps = lyrObj["timestamps"];
     let lyrList = lyrObj["lyrics"];
-    displayLyric(0);
+    displayLyricHelper(lyrList, timestamps);
 
     player.seek(0);
     player.resume();
 }
 
-let timestamps = [];
-let n = timestamps.length;
-
-function displayLyric(i) {
+function displayLyricHelper(lyrList, timestamps) {
+    for (i=0; i<ps; i++) {
+        waterfalls[i].textContent = lyrList[i];
+    }
+    displayLyric(ps, lyrList, timestamps);
+}
+function displayLyric(i, lyrList, timestamps) {
     // does nothing about the 16ms resolution for settimeout
     if (i >= n) return;
     for (let j=ps-1; j>=0; j--) {
@@ -82,12 +82,10 @@ function displayLyric(i) {
     }
     // console.log(i, lyrList[i], (timestamps[i + 1] - timestamps[i])*1000);
     timerID = setTimeout(() => {
-        displayLyric(i + 1);
+        displayLyric(i + 1, lyrList);
     }, timestamps[i + 1] - timestamps[i]);
 }
 
-// console.log(timestamps);
-displayLyric(ps);
 
 function stop() {
     clearTimeout(timerID);
@@ -105,7 +103,6 @@ function parseTimestamp(timestamp) {
 }
 
 function parseTimeList(timeList) {
-    // timeList is a string in the format "HH:MM:SS,HH:MM:SS,HH:MM:SS"
     return timeList.map(parseTimestamp);
 }
 
