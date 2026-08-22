@@ -1,4 +1,3 @@
-console.log("game.js loaded");
 let ps = 6;
 let waterfalls = [];
 
@@ -55,35 +54,43 @@ window.onSpotifyWebPlaybackSDKReady = () => {
 
 function playSong(player, song) {
     // the gameplay loop (lyric updating, audio playing, etc) goes here
-    let lyrObj = parseLyricFile(song.lyrics);
-    let timestamps = lyrObj["timestamps"];
-    let lyrList = lyrObj["lyrics"];
-    displayLyricHelper(lyrList, timestamps);
+    console.log(player);
+    console.log(song);    
 
-    player.seek(0);
-    player.resume();
+    let timedLyrics = parseLyricFile(song.lyrics);
+    console.log(timedLyrics[0]);
+    startLyrics(timedLyrics);
 }
 
-function displayLyricHelper(lyrList, timestamps) {
-    for (i=0; i<ps; i++) {
-        waterfalls[i].textContent = lyrList[i];
+function startLyrics(timedLyrics) {
+    const displayIter = timedLyrics.entries();
+    for (i=ps-2; i>=0; i--) {
+        waterfalls[i].textContent = displayIter.next().value[1][1];
     }
-    displayLyric(ps, lyrList, timestamps);
+    const lyricIter = timedLyrics.entries();
+    displayLyric(lyricIter, displayIter);
 }
-function displayLyric(i, lyrList, timestamps) {
-    // does nothing about the 16ms resolution for settimeout
-    if (i >= n) return;
+function displayLyric(lyricIter, displayIter) {
+    // We have two offset iterators to correctly time both the waterfalling of lyrics and the scoring
+    //      displayIter starts later, and is used to get the next lyric to add to the waterfall
+    //      lyricIter contains the duration and the current lyric that is being scored
+    const next = lyricIter.next();
+    if (next.done) return;
+    const lyric = next.value[1]; // [duration, lyric_text]
     for (let j=ps-1; j>=0; j--) {
         if (j==0) {
-            waterfalls[j].textContent = lyrList[i];
+            if (displayIter.next().done) {
+                waterfalls[j].textContent = "-------------------------"; // TODO: figure out way to make us not have to do this (theres probably a CSS way to stop the p tags from being collapsed)
+            } else {
+                waterfalls[j].textContent = displayIter.next().value[1][1];
+            }
         } else {
             waterfalls[j].textContent = waterfalls[j-1].textContent;
         }
     }
-    // console.log(i, lyrList[i], (timestamps[i + 1] - timestamps[i])*1000);
     timerID = setTimeout(() => {
-        displayLyric(i + 1, lyrList);
-    }, timestamps[i + 1] - timestamps[i]);
+        displayLyric(lyricIter, displayIter);
+    }, lyric[0]);
 }
 
 
@@ -106,9 +113,18 @@ function parseTimeList(timeList) {
     return timeList.map(parseTimestamp);
 }
 
+function getDurations(timestamps) {
+    // converts a list of timestamps (in ms) to a list of durations in order
+    // TODO: adjust to the browser 16 ms clock cycle in here if needed
+    let durations = [timestamps[0]];
+    for (let i = 1; i < timestamps.length; i++) {
+        durations.push(timestamps[i] - timestamps[i-1]);
+    }
+    return durations;
+}
+
 function parseLyricFile(lrc) {
     // assumes lrc file is coming in as a string
-    // TODO: what happens when a lyric has quotes in it?
     let linesArr = lrc.split('\n');
     let timestamps = [];
     let lyrics = [];
@@ -119,8 +135,6 @@ function parseLyricFile(lrc) {
         timestamps.push(timestamp[1]);
         lyrics.push(lineSplit[1]);
     }
-
-    parsedObj["lyrics"] = lyrics;
-    parsedObj["timestamps"] = parseTimeList(timestamps);
-    return parsedObj;
+    durations = getDurations(parseTimeList(timestamps));
+    return durations.map((dur, i) => [dur, lyrics[i]]);
 }
