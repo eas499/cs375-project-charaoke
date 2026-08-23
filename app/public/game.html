@@ -1,13 +1,16 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Charaoke</title>
         <link rel="icon" type="image/x-icon" href="../../charaoke_logo.png">
+        <link rel="stylesheet" href="game.css">
     </head>
     <body>
         <script src="https://sdk.scdn.co/spotify-player.js"></script>        
         <!-- <h1>Welcome to Charaoke</h1> -->
         <button id="stop" onclick="stop()">Stop</button>
         <p id="score">Score: 0</p>
+        <hr>
         <div id="buffer"></div>
         <p id="waterfall0">0</p>
         <p id="waterfall1">1</p>
@@ -15,6 +18,7 @@
         <p id="waterfall3">3</p>
         <p id="waterfall4">4</p>
         <p id="waterfall5">5</p>
+        <input id="type" type="text">
         <script src="game.js" type="module"></script>
     </body>
 </html>
