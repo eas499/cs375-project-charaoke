@@ -1,4 +1,5 @@
 let axios = require("axios");
+let request = require("request");
 let express = require("express");
 let levenshtein = require("js-levenshtein");
 let env = require("../env.json");
@@ -12,19 +13,54 @@ var spotify_token;
 app.use(express.static("public"));
 app.use(express.json());
 
-fetch(env["spotify"]["token_url"], {
-    method: 'POST',
-    body: new URLSearchParams({
-        'grant_type': 'client_credentials',
-    }),
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + (new Buffer.from(env["spotify"]["client_id"] + ':' + env["spotify"]["client_secret"]).toString('base64'))
-    }
-}).then(response => {
-    return response.json();
-}).then(body => {
-    spotify_token = body.access_token;
+var generateRandomString = function (length) {
+  var text = '';
+  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (var i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+};
+
+app.get('/auth/login', (req, res) => {
+    var scope = "streaming user-read-email user-read-private";
+    var state = generateRandomString(16);
+
+    var auth_query_parameters = new URLSearchParams({
+        response_type: "code",
+        client_id: env["spotify"]["client_id"],
+        scope: scope,
+        redirect_uri: env["spotify"]["redirect_uri"],
+        state: state
+    })
+
+    res.redirect('https://accounts.spotify.com/authorize/?' + auth_query_parameters.toString());
+});
+
+app.get('/auth/callback', (req, res) => {
+    var code = req.query.code;
+
+    var authOptions = {
+        url: env["spotify"]["token_url"],
+        form: {
+            code: code,
+            redirect_uri: env["spotify"]["redirect_uri"],
+            grant_type: 'authorization_code'
+        },
+        headers: {
+            'Authorization': 'Basic ' + (Buffer.from(env["spotify"]["client_id"] + ':' + env["spotify"]["client_secret"]).toString('base64')),
+            'Content-Type' : 'application/x-www-form-urlencoded'
+        },
+        json: true
+    };
+
+    request.post(authOptions, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+            spotify_token = body.access_token;
+            res.redirect('/')
+        }
+    });
 });
 
 function getLrcLibResults(url) {
@@ -86,7 +122,6 @@ app.post("/select_song", (req, res) => {
 app.get("/get_token_and_song", (req, res) => {
     res.json({ song: currentSong, token: spotify_token });
 });
-
 
 app.listen(port, hostname, () => {
     console.log(`http://${hostname}:${port}`);

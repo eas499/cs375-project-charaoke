@@ -5,3 +5,7 @@ function modeButtonClicked(mode) {
         location.href = "lyric.html";
     }
 }
+
+function login() {
+    window.location.href = "/auth/login";
+}

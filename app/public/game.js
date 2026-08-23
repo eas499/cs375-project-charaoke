@@ -37,6 +37,8 @@ window.onSpotifyWebPlaybackSDKReady = () => {
                             "Content-Type": "application/json",
                             Authorization: `Bearer ${access_token}`,
                         },
+                    }).catch((error) => {
+                        console.log(error.message);
                     });
                 });
             };
@@ -49,6 +51,8 @@ window.onSpotifyWebPlaybackSDKReady = () => {
         });
 
         playSong(player, song);
+    }).catch((error) => {
+        console.log(error.message);
     });
 }
 
@@ -57,8 +61,9 @@ function playSong(player, song) {
     console.log(player);
     console.log(song);    
 
+    player.connect();
+
     let timedLyrics = parseLyricFile(song.lyrics);
-    console.log(timedLyrics[0]);
     startLyrics(timedLyrics);
 }
 

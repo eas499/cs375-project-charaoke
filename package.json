@@ -3,6 +3,7 @@
     "axios": "^1.19.0",
     "express": "^5.2.1",
     "jquery": "^4.0.0",
-    "js-levenshtein": "^1.1.6"
+    "js-levenshtein": "^1.1.6",
+    "request": "^2.88.2"
   }
 }
