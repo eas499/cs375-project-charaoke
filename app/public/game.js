@@ -1,4 +1,5 @@
 console.log("game.js loaded");
+const levenshtein = require('js-levenshtein');
 let ps = 6;
 let waterfalls = [];
 
@@ -8,6 +9,7 @@ for (i=0; i<ps; i++) {
 
 let buffer = document.getElementById("buffer");
 let timerID;
+let score = 0;
 // let extraTime = 0;
 // let add = false;
 
@@ -123,4 +125,11 @@ function parseLyricFile(lrc) {
     parsedObj["lyrics"] = lyrics;
     parsedObj["timestamps"] = parseTimeList(timestamps);
     return parsedObj;
+}
+
+function scoreLyric(tar, input) {
+    let lyricScore = (1 - (levenshtein(tar, input) / length(lyric))) * 100;
+    score += lyricScore;
+    let scoreText = document.getElementById("score");
+    scoreText.innerText = score;
 }
