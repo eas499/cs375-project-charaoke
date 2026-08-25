@@ -63,12 +63,14 @@ function playSong(player, song) {
 
     player.connect();
 
-    let timedLyrics = parseLyricFile(song.lyrics);
+    let timedLyrics = parseLyricFile(song);
+    console.log(timedLyrics);
     startLyrics(timedLyrics);
 }
 
 function startLyrics(timedLyrics) {
     const displayIter = timedLyrics.entries();
+    console.log(displayIter);
     for (i=ps-2; i>=0; i--) {
         waterfalls[i].textContent = displayIter.next().value[1][1];
     }
@@ -79,15 +81,17 @@ function displayLyric(lyricIter, displayIter) {
     // We have two offset iterators to correctly time both the waterfalling of lyrics and the scoring
     //      displayIter starts later, and is used to get the next lyric to add to the waterfall
     //      lyricIter contains the duration and the current lyric that is being scored
-    const next = lyricIter.next();
+    let next = lyricIter.next();
     if (next.done) return;
     const lyric = next.value[1]; // [duration, lyric_text]
+    console.log(lyric);
     for (let j=ps-1; j>=0; j--) {
         if (j==0) {
-            if (displayIter.next().done) {
+            next = displayIter.next();
+            if (next.done) {
                 waterfalls[j].textContent = "-------------------------"; // TODO: figure out way to make us not have to do this (theres probably a CSS way to stop the p tags from being collapsed)
             } else {
-                waterfalls[j].textContent = displayIter.next().value[1][1];
+                waterfalls[j].textContent = next.value[1][1];
             }
         } else {
             waterfalls[j].textContent = waterfalls[j-1].textContent;
@@ -114,13 +118,9 @@ function parseTimestamp(timestamp) {
     let minutes = parseInt(parts[0]);
     parts = parts[1].split(".");
     let seconds = parseInt(parts[0]);
-    let milliseconds = parseInt(parts[1]);
+    let milliseconds = parseInt(parts[1]) * 10;
     //console.log(minutes, seconds, milliseconds);
     return (minutes * 60 + seconds) * 1000 + milliseconds;
-}
-
-function parseTimeList(timeList) {
-    return timeList.map(parseTimestamp);
 }
 
 function getDurations(timestamps) {
@@ -133,19 +133,22 @@ function getDurations(timestamps) {
     return durations;
 }
 
-function parseLyricFile(lrc) {
+function parseLyricFile(song) {
     // assumes lrc file is coming in as a string
-    let linesArr = lrc.split('\n');
+    let linesArr = song.lyrics.split('\n');
     let timestamps = [];
     let lyrics = [];
     let parsedObj = {};
     for (line in linesArr) {
         let lineSplit = linesArr[line].split("]");
         let timestamp = lineSplit[0].split("[");
-        timestamps.push(timestamp[1]);
+        timestamps.push(parseTimestamp(timestamp[1]));
         lyrics.push(lineSplit[1]);
     }
-    durations = getDurations(parseTimeList(timestamps));
+    timestamps.push(song.duration * 1000);
+    durations = getDurations(timestamps);
+    durations[1] += durations[0];
+    durations.shift();
     return durations.map((dur, i) => [dur, lyrics[i]]);
 }
 

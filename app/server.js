@@ -8,7 +8,7 @@ let hostname = "localhost";
 let port = 3000;
 let app = express();
 
-var spotify_token;
+var spotify_token, spotify_search_token;
 
 app.use(express.static("public"));
 app.use(express.json());
@@ -63,6 +63,21 @@ app.get('/auth/callback', (req, res) => {
     });
 });
 
+fetch(env["spotify"]["token_url"], {
+    method: 'POST',
+    body: new URLSearchParams({
+        'grant_type': 'client_credentials',
+    }),
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + (new Buffer.from(env["spotify"]["client_id"] + ':' + env["spotify"]["client_secret"]).toString('base64'))
+    }
+}).then(response => {
+    return response.json();
+}).then(body => {
+    spotify_search_token = body.access_token;
+});
+
 function getLrcLibResults(url) {
     return axios.get(url).then(response => response.data);
 }
@@ -70,7 +85,7 @@ function getLrcLibResults(url) {
 function getSpotifyResults(url) {
     return axios.get(url, {
         headers: {
-            'Authorization': 'Bearer ' + spotify_token
+            'Authorization': 'Bearer ' + spotify_search_token
         }
     }).then(response => response.data);
 }
