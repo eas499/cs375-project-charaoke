@@ -3,15 +3,43 @@ let request = require("request");
 let express = require("express");
 let levenshtein = require("js-levenshtein");
 let env = require("../env.json");
+let { Pool } = require("pg");
 
-let hostname = "localhost";
+// make this script's dir the cwd
+// b/c npm run start doesn't cd into src/ to run this
+// and if we aren't in its cwd, all relative paths will break
+process.chdir(__dirname);
+
 let port = 3000;
+let host;
+let redirect_uri;
+let databaseConfig;
+// fly.io sets NODE_ENV to production automatically, otherwise it's unset when running locally
+if (process.env.NODE_ENV == "production") {
+	host = "0.0.0.0";
+    redirect_uri = "https://charaoke.fly.dev/auth/callback";
+	databaseConfig = { connectionString: process.env.DATABASE_URL };
+} else {
+	host = "localhost";
+    redirect_uri = "http://127.0.0.1:3000/auth/callback";
+	let { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT } = process.env;
+	databaseConfig = { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT };
+}
+
 let app = express();
+app.use(express.static("public"));
+app.use(express.json());
 
 var spotify_token, spotify_search_token;
 
-app.use(express.static("public"));
-app.use(express.json());
+// uncomment these to debug
+// console.log(JSON.stringify(process.env, null, 2));
+// console.log(JSON.stringify(databaseConfig, null, 2));
+
+let pool = new Pool(databaseConfig);
+pool.connect().then(() => {
+	console.log("Connected to db");
+});
 
 var generateRandomString = function (length) {
   var text = '';
@@ -31,7 +59,7 @@ app.get('/auth/login', (req, res) => {
         response_type: "code",
         client_id: env["spotify"]["client_id"],
         scope: scope,
-        redirect_uri: env["spotify"]["redirect_uri"],
+        redirect_uri: redirect_uri,
         state: state
     })
 
@@ -45,7 +73,7 @@ app.get('/auth/callback', (req, res) => {
         url: env["spotify"]["token_url"],
         form: {
             code: code,
-            redirect_uri: env["spotify"]["redirect_uri"],
+            redirect_uri: redirect_uri,
             grant_type: 'authorization_code'
         },
         headers: {
@@ -138,6 +166,6 @@ app.get("/get_token_and_song", (req, res) => {
     res.json({ song: currentSong, token: spotify_token });
 });
 
-app.listen(port, hostname, () => {
-    console.log(`http://${hostname}:${port}`);
+app.listen(port, host, () => {
+    console.log(`http://${host}:${port}`);
 });

@@ -153,7 +153,7 @@ function parseLyricFile(song) {
 }
 
 function scoreLyric(target, typed) {
-    let lyrScore = (1 - (levenshtein(target, typed) / length(target))) * 100;
+    let lyrScore = (1 - (levenshtein(target, typed) / target.length)) * 100;
     score += lyrScore;
     let scoreText = document.getElementById("score");
     scoreText.innerText = "Score: " + score;
