@@ -123,8 +123,8 @@ function animateProgressBar(duration) {
     outer.append(inner);
 }
 
-function stop() {
-    clearTimeout(timerID);
+function mainMenu() {
+    window.location.href= "/index.html";
 }
 
 function parseTimestamp(timestamp) {
