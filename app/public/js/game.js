@@ -71,6 +71,7 @@ function playSong(player, song) {
     player.connect();
 
     let timedLyrics = parseLyricFile(song);
+    console.log(timedLyrics);
     const displayIter = timedLyrics.entries();
     for (i=ps-2; i>=0; i--) {
         waterfalls[i].textContent = displayIter.next().value[1][1];
@@ -151,6 +152,7 @@ function getDurations(timestamps) {
 function parseLyricFile(song) {
     // assumes lrc file is coming in as a string
     let linesArr = song.lyrics.split('\n');
+    console.log(linesArr);
     let timestamps = [];
     let lyrics = [];
     let parsedObj = {};
@@ -158,14 +160,14 @@ function parseLyricFile(song) {
         let lineSplit = linesArr[line].split("]");
         let timestamp = parseTimestamp(lineSplit[0].split("[")[1]);
         let lyr = stripNonAlphaNum(lineSplit[1]);
-        if (lyr.trim() == "") {
-            timestamps.pop();
-        } else {
+        console.log(timestamp, lyr);
+        if (lyr.trim() != "") {
+            timestamps.push(timestamp);
             lyrics.push(stripNonAlphaNum(lineSplit[1]));
         }
-        timestamps.push(timestamp);
     }
     timestamps.push(song.duration * 1000);
+    console.log(timestamps, lyrics);
     durations = getDurations(timestamps);
     durations[1] += durations[0];
     durations.shift();
@@ -175,14 +177,14 @@ function parseLyricFile(song) {
 function stripNonAlphaNum(str) {
     // strip leading and trailing whitespace, convert to lower case, and remove all non-space/non-alphanumeric characters
     let new_str = "";
-    str = str.trim().toLowerCase();
+    str = str.toLowerCase();
     for (let c of str) {
         let code = c.charCodeAt(0);
         if (code == 32 || (code >= 48 && code <= 57) || (code >= 97 && code <= 122)) {
             new_str += c;
         }
     }
-    return new_str;
+    return new_str.trim();
 }
 
 function scoreLyric(target, typed) {
@@ -193,104 +195,4 @@ function scoreLyric(target, typed) {
     score += lyrScore;
     let scoreText = document.getElementById("score");
     scoreText.innerText = "Score: " + score;
-}
-
-// Source - https://stackoverflow.com/a/35279162
-// Posted by gustf, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-08-23, License - CC BY-SA 3.0
-
-function levenshtein(s, t) {
-    if (s === t) {
-        return 0;
-    }
-    var n = s.length, m = t.length;
-    if (n === 0 || m === 0) {
-        return n + m;
-    }
-    var x = 0, y, a, b, c, d, g, h, k;
-    var p = new Array(n);
-    for (y = 0; y < n;) {
-        p[y] = ++y;
-    }
-
-    for (; (x + 3) < m; x += 4) {
-        var e1 = t.charCodeAt(x);
-        var e2 = t.charCodeAt(x + 1);
-        var e3 = t.charCodeAt(x + 2);
-        var e4 = t.charCodeAt(x + 3);
-        c = x;
-        b = x + 1;
-        d = x + 2;
-        g = x + 3;
-        h = x + 4;
-        for (y = 0; y < n; y++) {
-            k = s.charCodeAt(y);
-            a = p[y];
-            if (a < c || b < c) {
-                c = (a > b ? b + 1 : a + 1);
-            }
-            else {
-                if (e1 !== k) {
-                    c++;
-                }
-            }
-
-            if (c < b || d < b) {
-                b = (c > d ? d + 1 : c + 1);
-            }
-            else {
-                if (e2 !== k) {
-                    b++;
-                }
-            }
-
-            if (b < d || g < d) {
-                d = (b > g ? g + 1 : b + 1);
-            }
-            else {
-                if (e3 !== k) {
-                    d++;
-                }
-            }
-
-            if (d < g || h < g) {
-                g = (d > h ? h + 1 : d + 1);
-            }
-            else {
-                if (e4 !== k) {
-                    g++;
-                }
-            }
-            p[y] = h = g;
-            g = d;
-            d = b;
-            b = c;
-            c = a;
-        }
-    }
-
-    for (; x < m;) {
-        var e = t.charCodeAt(x);
-        c = x;
-        d = ++x;
-        for (y = 0; y < n; y++) {
-            a = p[y];
-            if (a < c || d < c) {
-                d = (a > d ? d + 1 : a + 1);
-            }
-            else {
-                if (e !== s.charCodeAt(y)) {
-                    d = c + 1;
-                }
-                else {
-                    d = c;
-                }
-            }
-            p[y] = d;
-            c = a;
-        }
-        h = d;
-    }
-
-    return h;
 }
