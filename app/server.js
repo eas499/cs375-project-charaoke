@@ -18,12 +18,12 @@ let databaseConfig;
 if (process.env.NODE_ENV == "production") {
 	host = "0.0.0.0";
     redirect_uri = "https://charaoke.fly.dev/auth/callback";
-	databaseConfig = { connectionString: process.env.DATABASE_URL };
+	//databaseConfig = { connectionString: process.env.DATABASE_URL };
 } else {
-	host = "localhost";
+	host = "127.0.0.1";
     redirect_uri = "http://127.0.0.1:3000/auth/callback";
-	let { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT } = process.env;
-	databaseConfig = { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT };
+	//let { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT } = process.env;
+	//databaseConfig = { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT };
 }
 
 let app = express();
@@ -36,10 +36,10 @@ var spotify_token, spotify_search_token;
 // console.log(JSON.stringify(process.env, null, 2));
 // console.log(JSON.stringify(databaseConfig, null, 2));
 
-let pool = new Pool(databaseConfig);
-pool.connect().then(() => {
-	console.log("Connected to db");
-});
+//let pool = new Pool(databaseConfig);
+//pool.connect().then(() => {
+	//console.log("Connected to db");
+//});
 
 var generateRandomString = function (length) {
   var text = '';
@@ -118,6 +118,14 @@ function getSpotifyResults(url) {
     }).then(response => response.data);
 }
 
+function artistNames(song) {
+    artists = [];
+    for (let artist of song.artists) {
+        artists.push(artist.name);
+    }
+    return artists.join(", ");
+}
+
 const MS_DURATION_BUFFER = 1000;
 app.get("/get_songs", async (req, res) => {
     try {
@@ -139,6 +147,7 @@ app.get("/get_songs", async (req, res) => {
                     songs.push({
                         lrclib_name: lrc.name,
                         spotify_name: song.name,
+                        artist: artistNames(song),
                         duration: lrc.duration,
                         lyrics: lrc.syncedLyrics,
                         uri: song.uri

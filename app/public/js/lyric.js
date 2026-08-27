@@ -1,4 +1,6 @@
-
+function goToMain() {
+    window.location.href = "/index.html";
+}
 
 function displayTopSongs() {
     //TODO: implement
@@ -16,14 +18,21 @@ function playSong(song) {
     });
 }
 
+function createP(text) {
+    let p = document.createElement("p");
+    p.textContent = text;
+    return p;
+}
+
 function createSongEntry(song) {
     let song_div = document.createElement("div");
     song_div.class = "song";
-    let button1 = document.createElement("button");
-    button1.classList.add("song_button");
-    button1.textContent = song.spotify_name;
-    button1.onclick = function(){playSong(song)};
-    song_div.append(button1);
+    let song_button = document.createElement("button");
+    song_button.classList.add("song_button");
+    song_button.append(createP(song.spotify_name));
+    song_button.append(createP(song.artist));
+    song_button.onclick = function(){playSong(song)};
+    song_div.append(song_button);
     //song_div.append(createLeaderboardButton()); //TODO: implement later
     return song_div;
 }

@@ -1,8 +1,6 @@
 .song_button {
-    border: 2px solid black;
     border-radius: 4px;
     padding: 30px 80px;
-    background-color: white;
     display: inline-block;
 }
 
@@ -12,4 +10,27 @@
     padding: 5px 5px;
     background-color: white;
     display: inline-block;
+}
+
+@keyframes progressBarAnim {
+    from {width: 0px}
+    to {width: 200px}
+}
+
+#progress_bar_outer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 20px;
+    background-color: white;
+    border-radius: 4px;
+}
+
+#progress_bar_inner {
+    height: 20px;
+    background-color: red;
+    animation-name: progressBarAnim;
+    animation-timing-function: linear;
+    border-radius: 4px;
 }

@@ -1,14 +1,20 @@
 let ps = 6;
 let waterfalls = [];
 
-for (i=0; i<ps; i++) {
-    waterfalls.push(document.getElementById("waterfall" + i));
+const BUFFER = "---------------------------";
+for (let i=0; i<ps; i++) {
+    let wf = document.getElementById("waterfall" + i)
+    wf.textContent = BUFFER;
+    waterfalls.push(wf);
 }
 
 let buffer = document.getElementById("buffer");
 let timerID;
+let score = 0;
 // let extraTime = 0;
 // let add = false;
+
+const outer = document.getElementById("progress_bar_outer");
 
 window.onSpotifyWebPlaybackSDKReady = () => {
     fetch("/get_token_and_song").then((response) => {
@@ -19,7 +25,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
         const player = new Spotify.Player({
             name: 'Web Playback SDK Quick Start Player',
             getOAuthToken: cb => { cb( token ); },
-            volume: 0.5
+            volume: 0
         });
 
         player.addListener("ready", ({ device_id }) => {
@@ -56,6 +62,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     });
 }
 
+const START_DELAY = 3000;
 function playSong(player, song) {
     // the gameplay loop (lyric updating, audio playing, etc) goes here
     console.log(player);
@@ -64,19 +71,18 @@ function playSong(player, song) {
     player.connect();
 
     let timedLyrics = parseLyricFile(song);
-    console.log(timedLyrics);
-    startLyrics(timedLyrics);
-}
-
-function startLyrics(timedLyrics) {
     const displayIter = timedLyrics.entries();
-    console.log(displayIter);
     for (i=ps-2; i>=0; i--) {
         waterfalls[i].textContent = displayIter.next().value[1][1];
     }
     const lyricIter = timedLyrics.entries();
-    displayLyric(lyricIter, displayIter);
+    setTimeout(() => {
+        player.seek(0);
+        player.setVolume(0.5);
+        displayLyric(lyricIter, displayIter);
+    }, START_DELAY);
 }
+
 function displayLyric(lyricIter, displayIter) {
     // We have two offset iterators to correctly time both the waterfalling of lyrics and the scoring
     //      displayIter starts later, and is used to get the next lyric to add to the waterfall
@@ -89,7 +95,7 @@ function displayLyric(lyricIter, displayIter) {
         if (j==0) {
             next = displayIter.next();
             if (next.done) {
-                waterfalls[j].textContent = "-------------------------"; // TODO: figure out way to make us not have to do this (theres probably a CSS way to stop the p tags from being collapsed)
+                waterfalls[j].textContent = BUFFER; // TODO: figure out way to make us not have to do this (theres probably a CSS way to stop the p tags from being collapsed)
             } else {
                 waterfalls[j].textContent = next.value[1][1];
             }
@@ -98,15 +104,24 @@ function displayLyric(lyricIter, displayIter) {
         }
     }
 
-    let inputBox = document.getElementById("type");
-    let typedLyr = inputBox.value;
-    scoreLyric(lyric, typedLyr);
-    typedLyr = "";
+    animateProgressBar(lyric[0]);
+
     timerID = setTimeout(() => {
+        let inputBox = document.getElementById("type");
+        let typedLyr = inputBox.value;
+        inputBox.value = "";
+        scoreLyric(lyric[1], typedLyr);
         displayLyric(lyricIter, displayIter);
     }, lyric[0]);
 }
 
+function animateProgressBar(duration) {
+    outer.textContent = "";
+    let inner = document.createElement("div");
+    inner.id = "progress_bar_inner";
+    inner.style.animationDuration = duration + "ms";
+    outer.append(inner);
+}
 
 function stop() {
     clearTimeout(timerID);
@@ -141,9 +156,14 @@ function parseLyricFile(song) {
     let parsedObj = {};
     for (line in linesArr) {
         let lineSplit = linesArr[line].split("]");
-        let timestamp = lineSplit[0].split("[");
-        timestamps.push(parseTimestamp(timestamp[1]));
-        lyrics.push(lineSplit[1]);
+        let timestamp = parseTimestamp(lineSplit[0].split("[")[1]);
+        let lyr = stripNonAlphaNum(lineSplit[1]);
+        if (lyr.trim() == "") {
+            timestamps.pop();
+        } else {
+            lyrics.push(stripNonAlphaNum(lineSplit[1]));
+        }
+        timestamps.push(timestamp);
     }
     timestamps.push(song.duration * 1000);
     durations = getDurations(timestamps);
@@ -152,8 +172,24 @@ function parseLyricFile(song) {
     return durations.map((dur, i) => [dur, lyrics[i]]);
 }
 
+function stripNonAlphaNum(str) {
+    // strip leading and trailing whitespace, convert to lower case, and remove all non-space/non-alphanumeric characters
+    let new_str = "";
+    str = str.trim().toLowerCase();
+    for (let c of str) {
+        let code = c.charCodeAt(0);
+        if (code == 32 || (code >= 48 && code <= 57) || (code >= 97 && code <= 122)) {
+            new_str += c;
+        }
+    }
+    return new_str;
+}
+
 function scoreLyric(target, typed) {
-    let lyrScore = (1 - (levenshtein(target, typed) / target.length)) * 100;
+    let stripped_typed = stripNonAlphaNum(typed);
+    let lyrScore = Math.round((1 - (levenshtein(target, stripped_typed) / target.length)) * 100);
+    if (lyrScore < 0) lyrScore = 0;
+    console.log(levenshtein(target, stripped_typed), target.length, lyrScore, target, stripped_typed);
     score += lyrScore;
     let scoreText = document.getElementById("score");
     scoreText.innerText = "Score: " + score;
