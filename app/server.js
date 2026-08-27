@@ -161,7 +161,7 @@ app.get("/get_songs", async (req, res) => {
         if (error.hasOwnProperty("request") && error.request.hasOwnProperty("host")) {
             console.log(error.request.host);
         }
-        console.log(error.message);
+        console.log(error);
         res.status(400).send();
     }
 });

@@ -1,11 +1,28 @@
+let topSongs = [
+    {
+        lrclib_name: "The Beginning",
+        spotify_name: "The Beginning",
+        artist: "Marah in the Mainsail",
+        duration: 74,
+        lyrics: "[00:00.25] There once lived a fox in the forest of old\n[00:06.41] Who donned a magnificent crown of bone\n[00:12.32] With eyes of jade and fur to match the flames\n[00:24.83] The all-seeing-owl foretold of his reign\n[00:30.95] Dreamt of the future again and again\n[00:36.83] Foretelling his story, the end of all ends\n[00:42.86] And the trees overheard what he said\n[00:49.01] The animals panicked in all different ways\n[00:55.09] The deer they froze and the birds they sang\n[01:00.66] A chorus of warning, of doom soon to come\n[01:06.29] How the great forest king would be slain\n[01:11.09] ",
+        uri: "spotify:track:4gIyG1uU29wUkjE4m0MMyP"
+    }
+]
+
 function goToMain() {
     window.location.href = "/index.html";
 }
 
 function displayTopSongs() {
-    //TODO: implement
-    //get top songs from SQL database
+    const song_list = document.getElementById("song_results");
+    song_list.textContent = "";
+    for (let i = 0; i < topSongs.length; i++) {
+        topSongs[i].demo = false;
+        console.log(topSongs[i]);
+        song_list.append(createSongEntry(topSongs[i]));
+    }
 }
+displayTopSongs();
 
 function playSong(song) {
     song["mode"] = "lyric";
@@ -62,6 +79,8 @@ function updateResults(el) {
                 console.log(songs[i]);
                 song_list.append(createSongEntry(songs[i]));
             }
+        }).catch((error) => {
+            console.log(error.message);
         });
     }
 }
