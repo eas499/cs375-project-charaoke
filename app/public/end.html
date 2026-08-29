@@ -4,12 +4,16 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.min.css">
     </head>
     <body>
-        <script src="js/end.js"></script>
         <button id="menu" onclick="mainMenu()">Back to main menu</button>
         <p id="score">Waiting for score...</p>
         <label>Name</label>
         <input type="text" id="name">
-        <button id="submit">Submit score</button>
-        <div id="scoreboard"></div>
+        <button id="submit" onclick="submitScore()">Submit score</button>
+        <table>
+            <tr><th>Ranking</th><th>Name</th><th>Score</th></tr>
+            <tbody id="leaderboard"></tbody>
+        </table>
+        <p id="message">Submit score to see rankings</p>
+        <script src="js/end.js"></script>
     </body>
 </html>

@@ -63,6 +63,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
 }
 
 const START_DELAY = 3000;
+const END_DELAY = 1000;
 function playSong(player, song) {
     // the gameplay loop (lyric updating, audio playing, etc) goes here
     console.log(player);
@@ -81,9 +82,8 @@ function playSong(player, song) {
         player.seek(0);
         player.setVolume(0.5);
         displayLyric(lyricIter, displayIter);
+        setTimeout(endOfSong, song.duration * 1000 + END_DELAY);
     }, START_DELAY);
-
-    // end the game
 }
 
 function displayLyric(lyricIter, displayIter) {

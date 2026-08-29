@@ -18,14 +18,12 @@ let databaseConfig;
 if (process.env.NODE_ENV == "production") {
 	host = "0.0.0.0";
     redirect_uri = "https://charaoke.fly.dev/auth/callback";
-	//databaseConfig = { connectionString: process.env.DATABASE_URL };
+	databaseConfig = { connectionString: process.env.DATABASE_URL };
 } else {
 	host = "127.0.0.1";
     redirect_uri = "http://127.0.0.1:3000/auth/callback";
-	//let { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT } = process.env;
-	//databaseConfig = { PGUSER, PGPASSWORD, PGDATABASE, PGHOST, PGPORT };
+	databaseConfig = env["postgres"];
 }
-
 let app = express();
 app.use(express.static("public"));
 app.use(express.json());
@@ -36,10 +34,10 @@ var spotify_token, spotify_search_token;
 // console.log(JSON.stringify(process.env, null, 2));
 // console.log(JSON.stringify(databaseConfig, null, 2));
 
-//let pool = new Pool(databaseConfig);
-//pool.connect().then(() => {
-	//console.log("Connected to db");
-//});
+let pool = new Pool(databaseConfig);
+pool.connect().then(() => {
+	console.log("Connected to db");
+});
 
 var generateRandomString = function (length) {
   var text = '';
@@ -147,6 +145,7 @@ app.get("/get_songs", async (req, res) => {
                     songs.push({
                         lrclib_name: lrc.name,
                         spotify_name: song.name,
+                        lrclib_id: lrc.id,
                         artist: artistNames(song),
                         duration: lrc.duration,
                         lyrics: lrc.syncedLyrics,
@@ -166,6 +165,12 @@ app.get("/get_songs", async (req, res) => {
     }
 });
 
+app.get("/get_top_songs", (req, res) => {
+    pool.query("SELECT * FROM top_songs ORDER BY num_plays DESC").then(result => {
+        res.json({data: result.rows});
+    });
+});
+
 let currentSong = null;
 app.post("/select_song", (req, res) => {
     currentSong = req.body.song;
@@ -183,6 +188,49 @@ app.post("/end_song", (req, res) => {
 app.get("/get_score", (req, res) => {
     res.json({ song: currentSong, score: score});
 })
+
+app.post("/submit_score", async (req, res) => {
+    try {
+        const name = req.body.name;
+        const id = currentSong.lrclib_id;
+        const table_name = "song_"+id;
+        let result = await pool.query("SELECT * FROM top_songs WHERE lrclib_id = $1", [id]);
+
+        if (result.rows.length != 1) {
+            await pool.query(`INSERT INTO top_songs
+                              (lrclib_name, spotify_name, lrclib_id, artist, duration, lyrics, uri, num_plays)
+                              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                             [currentSong.lrclib_name, currentSong.spotify_name, id, currentSong.artist,
+                              currentSong.duration, currentSong.lyrics, currentSong.uri, 1]
+            );
+            await pool.query(`CREATE TABLE ${table_name} 
+                              (id SERIAL PRIMARY KEY, name TEXT, score INT)`
+            );
+        } else {
+            let new_num_plays = result.rows[0].num_plays + 1;
+            await pool.query("UPDATE top_songs SET num_plays = $1 WHERE lrclib_id = $2",
+                             [new_num_plays, id]
+            );
+        }
+        await pool.query(`INSERT INTO ${table_name} (name, score) VALUES ($1, $2)`, [name, score]);
+        result = await pool.query(`SELECT * FROM ${table_name} ORDER BY score DESC`);
+        const last_added = await pool.query(`SELECT * FROM ${table_name} ORDER BY id DESC LIMIT 1`);
+        let board = [];
+        let num_to_display = 10;
+        let placement = 1;
+        for (let row of result.rows) {
+            if (placement <= num_to_display || row.id == last_added[0].id) {
+                row["placement"] = placement;
+                board.push(row);
+            }
+            placement++;
+        }
+        res.status(200).json({ rows: board });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send();
+    };
+});
 
 app.listen(port, host, () => {
     console.log(`http://${host}:${port}`);
