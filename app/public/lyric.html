@@ -8,11 +8,12 @@
 <body>
 
 <img src="images/lyric_mode.png">
-<input type="text" id="song_search">
+<input type="text" id="song_search" placeholder="Search for a song">
+<button onclick="updateResults(this)">Search!</button>
 <!--Add songs dynamically with search bar?-->
 <div id="song_results"></div>
 
-<button type="button" id="main_menu" onclick="goToMain()">Back to Main Menu</button>
+<button type="button" id="main_menu" onclick="goToMain()" style="padding-left:15px; padding-right:15px;">Main Menu</button>
 <p id="message"></p>
 <script src="js/song_storage.js"></script>
 <script src="js/lyric.js"></script>
