@@ -1,9 +1,9 @@
 {
   "scripts": {
     "start": "node app/server.js",
-    "setup": "fly postgres connect -a YOURFLYPOSTGRESAPPNAME < setup.sql",
+    "setup": "fly postgres connect -a charaoke-pg < setup.sql",
     "start:local": "env-cmd node app/server.js",
-    "setup:local": "env-cmd psql -d postgres -c \"create database YOURFLYWEBAPPNAME\" -f setup.sql"
+    "setup:local": "env-cmd psql -d postgres -c \"create database charaoke\" -f setup.sql"
   },
   "dependencies": {
     "axios": "^1.19.0",

@@ -31,8 +31,8 @@ app.use(express.json());
 var spotify_token, spotify_search_token;
 
 // uncomment these to debug
-// console.log(JSON.stringify(process.env, null, 2));
-// console.log(JSON.stringify(databaseConfig, null, 2));
+console.log(JSON.stringify(process.env, null, 2));
+console.log(JSON.stringify(databaseConfig, null, 2));
 
 let pool = new Pool(databaseConfig);
 pool.connect().then(() => {

@@ -71,9 +71,13 @@ function updateResults(el) {
             return response.json();
         }).then((body) => {
             songs = body.songs;
+            let msg = document.getElementById("p");
             if (songs.length == 0) {
+                msg.textContent = "No results found, displaying most played songs instead";
                 displayTopSongs();
                 return null;
+            } else {
+                msg.textContent = "";
             }
             const song_list = document.getElementById("song_results");
             song_list.textContent = "";
