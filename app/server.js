@@ -175,6 +175,15 @@ app.get("/get_token_and_song", (req, res) => {
     res.json({ song: currentSong, token: spotify_token });
 });
 
+let score = 0;
+app.post("/end_song", (req, res) => {
+    score = req.body.score;
+    res.status(200).send();
+});
+app.get("/get_score", (req, res) => {
+    res.json({ song: currentSong, score: score});
+})
+
 app.listen(port, host, () => {
     console.log(`http://${host}:${port}`);
 });

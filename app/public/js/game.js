@@ -10,7 +10,7 @@ for (let i=0; i<ps; i++) {
 
 let buffer = document.getElementById("buffer");
 let timerID;
-let score = 0;
+let totalScore = 0;
 // let extraTime = 0;
 // let add = false;
 
@@ -81,6 +81,8 @@ function playSong(player, song) {
         player.setVolume(0.5);
         displayLyric(lyricIter, displayIter);
     }, START_DELAY);
+
+    // end the game
 }
 
 function displayLyric(lyricIter, displayIter) {
@@ -190,9 +192,19 @@ function scoreLyric(target, typed) {
     let lyrScore = Math.round((1 - (levenshtein(target, stripped_typed) / target.length)) * 100);
     if (lyrScore < 0) lyrScore = 0;
     console.log(levenshtein(target, stripped_typed), target.length, lyrScore, target, stripped_typed);
-    score += lyrScore;
+    totalScore += lyrScore;
     let scoreText = document.getElementById("score");
-    scoreText.innerText = "Score: " + score;
+    scoreText.innerText = "Score: " + totalScore;
+}
+
+function endOfSong() {
+    fetch("/end_song", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: totalScore })
+    }).then(() => {
+        window.location.href = "/end.html";
+    });
 }
 
 // Source - https://stackoverflow.com/a/35279162
