@@ -110,7 +110,7 @@ function displayLyric(lyricIter, displayIter) {
     animateProgressBar(lyric[0]);
 
     timerID = setTimeout(() => {
-        let inputBox = document.getElementById("type");
+        let inputBox = document.getElementById("lyric_input");
         let typedLyr = inputBox.value;
         inputBox.value = "";
         scoreLyric(lyric[1], typedLyr);

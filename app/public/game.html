@@ -7,19 +7,20 @@
     </head>
     <body>
         <!-- <h1>Welcome to Charaoke</h1> -->
-        
-        <p id="score">Score: 0</p>
-        <hr>
-        <div id="buffer"></div>
-        <p id="waterfall0"></p>
-        <p id="waterfall1"></p>
-        <p id="waterfall2"></p>
-        <p id="waterfall3"></p>
-        <p id="waterfall4"></p>
-        <p id="waterfall5"></p>
-        <input type="text" id="type">
-        <div id="progress_bar_outer"></div>
-        <button id="menu" onclick="mainMenu()" style="padding-left:15px; padding-right:15px;">Main Menu</button>
+        <div class="center">        
+            <button id="menu" onclick="mainMenu()" style="padding-left:15px; padding-right:15px;">Main Menu</button>
+            <h2 id="score">Score: 0</h2>
+            <hr>
+            <div id="buffer"></div>
+            <p id="waterfall0"></p>
+            <p id="waterfall1"></p>
+            <p id="waterfall2"></p>
+            <p id="waterfall3"></p>
+            <p id="waterfall4"></p>
+            <p id="waterfall5"></p>
+            <input type="text" id="lyric_input">
+            <div id="progress_bar_outer" class="center"></div>
+        </div>
         <script src="js/levenshtein.js"></script>
         <script src="js/game.js"></script>
         <script src="https://sdk.scdn.co/spotify-player.js"></script>        

@@ -57,10 +57,16 @@ input.addEventListener("keypress", function(event) {
     }
 });
 
+function searchButtonPressed() {
+    updateResults(input);
+}
+
 function updateResults(el) {
     const search_input = el.value;
     let songs = []
     if (search_input == "") {
+        let msg = document.getElementById("message");
+        msg.innerText = "No results found, displaying most played songs instead";
         displayTopSongs();
     } else if (search_input == "DEMO") {
         // get the crazy alphabet song
@@ -71,13 +77,13 @@ function updateResults(el) {
             return response.json();
         }).then((body) => {
             songs = body.songs;
-            let msg = document.getElementById("p");
+            let msg = document.getElementById("message");
             if (songs.length == 0) {
-                msg.textContent = "No results found, displaying most played songs instead";
+                msg.innerText = "No results found, displaying most played songs instead";
                 displayTopSongs();
                 return null;
             } else {
-                msg.textContent = "";
+                msg.innerText = "";
             }
             const song_list = document.getElementById("song_results");
             song_list.textContent = "";
