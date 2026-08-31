@@ -192,7 +192,7 @@ app.get("/get_score", (req, res) => {
 app.post("/submit_score", async (req, res) => {
     try {
         const name = req.body.name;
-        const id = currentSong.lrclib_id;
+        const id = req.body.song.lrclib_id;
         const table_name = "song_"+id;
         let result = await pool.query("SELECT * FROM top_songs WHERE lrclib_id = $1", [id]);
 
@@ -200,8 +200,8 @@ app.post("/submit_score", async (req, res) => {
             await pool.query(`INSERT INTO top_songs
                               (lrclib_name, spotify_name, lrclib_id, artist, duration, lyrics, uri, num_plays)
                               VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-                             [currentSong.lrclib_name, currentSong.spotify_name, id, currentSong.artist,
-                              currentSong.duration, currentSong.lyrics, currentSong.uri, 1]
+                             [req.body.song.lrclib_name, req.body.song.spotify_name, id, req.body.song.artist,
+                              req.body.song.duration, req.body.song.lyrics, req.body.song.uri, 1]
             );
             await pool.query(`CREATE TABLE ${table_name} 
                               (id SERIAL PRIMARY KEY, name TEXT, score INT)`

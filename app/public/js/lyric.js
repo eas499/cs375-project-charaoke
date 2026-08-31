@@ -36,13 +36,26 @@ function createP(text) {
     return p;
 }
 
+function timeFormat(t) {
+    let m = Math.floor(t / 60);
+    let s = t % 60;
+    if (s < 10) {
+        s = "0" + s;
+    }
+    return m + "'" + s + "\"";
+}
+
 function createSongEntry(song) {
     let song_div = document.createElement("div");
     song_div.class = "song";
     let song_button = document.createElement("button");
     song_button.classList.add("song_button");
-    song_button.append(createP(song.spotify_name));
-    song_button.append(createP(song.artist));
+    song_button.append(createP(`${song.spotify_name} (${song.artist})`));
+    if (song.hasOwnProperty("num_plays")) {
+        song_button.append(createP(`Duration: ${timeFormat(song.duration)} | Plays: ${song.num_plays}`));
+    } else {
+        song_button.append(createP(`Duration: ${timeFormat(song.duration)}`));
+    }
     song_button.onclick = function(){playSong(song)};
     song_div.append(song_button);
     //song_div.append(createLeaderboardButton()); //TODO: implement later

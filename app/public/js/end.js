@@ -1,4 +1,5 @@
 let finalScore = 0;
+let song = null;
 
 function displayLeaderboard(board) {
     let tbody = document.getElementById("leaderboard");
@@ -25,7 +26,7 @@ function submitScore() {
     fetch("/submit_score", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name })
+        body: JSON.stringify({ name: name, song: song })
     }).then((response) => {
         if (response.status == 200) {
             return response.json();
@@ -45,6 +46,7 @@ fetch("/get_score").then((response) => {
 }).then((body) => {
     let scoreText = document.getElementById("score");
     scoreText.innerText = "Your final score is: " + body.score;
+    song = body.song;
 });
 
 function mainMenu() {
